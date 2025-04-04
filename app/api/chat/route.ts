@@ -20,7 +20,7 @@ const formattedBoothList = knowledgeBase.booths.map((booth) => {
 
 const formattedSponsorshipList = knowledgeBase.sponsorships.map((sponsorship) => {
   return `- ${sponsorship.name} – $${sponsorship.price.toLocaleString()}  
-  - Benefiits: ${sponsorship.benefits}  
+  - Benefits: ${sponsorship.benefits}  
   - Remaining: ${sponsorship.remaining}`;
 }).join('\n\n');
 

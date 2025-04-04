@@ -4,6 +4,7 @@ import { useRef, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useChat } from '@ai-sdk/react';
 import ReactMarkdown from 'react-markdown';
+import { LoaderCircle, SendHorizonal } from 'lucide-react';
 
 export default function Chatbox() {
   const [isThinking, setIsThinking] = useState(false);
@@ -14,7 +15,6 @@ export default function Chatbox() {
     handleSubmit,
     status,
     error,
-    stop,
     reload
   } = useChat({
     api: '/api/chat',
@@ -44,23 +44,31 @@ export default function Chatbox() {
   }, [messages]);
 
   const handleSend = (e?: React.FormEvent) => {
-    if (status === 'streaming') {
-      return stop();
-    }
-
     e?.preventDefault();
     if (!input.trim()) return;
     setIsThinking(true);
     handleSubmit();
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+
   return (
-    <div className="w-full h-screen sm:h-[35rem] my-auto bg-white flex flex-col max-w-md mx-auto sm:rounded-2xl sm:my-10 overflow-hidden">
-      <div className="p-4 border-b bg-blue-500 text-white">
+    <div className="w-full flex-1 flex flex-col overflow-hidden
+      bg-white border-0 sm:border border-border max-w-md sm:rounded-2xl shadow-none sm:shadow-xl">
+      <div className="p-4 bg-blue-500 text-white">
         <h1 className="text-lg font-semibold">AW AI Assistant</h1>
         <p className="text-sm tracking-wide">Sales Team</p>
       </div>
-      <div ref={chatRef} className="flex-1 overflow-y-auto p-4 space-y-3">
+      <div 
+        ref={chatRef} 
+        aria-label="scroll box" 
+        className="flex-1 max-h-[calc(100dvh_-_13rem)] sm:max-h-[calc(100dvh_-_15rem)] overflow-y-auto p-4 space-y-3"
+      >
         {messages.map((msg, idx) => {
           if (!msg.content) return null;
           return (
@@ -72,7 +80,7 @@ export default function Chatbox() {
               className={`w-fit max-w-[75%] break-words px-4 py-2 rounded-xl text-sm ${
                 msg.role === 'user'
                   ? 'bg-blue-500 text-white self-end ml-auto'
-                  : 'bg-gray-200 text-gray-800 self-start mr-auto'
+                  : 'bg-slate-100 text-gray-800 self-start mr-auto'
               }`}
             >
               <ReactMarkdown>
@@ -102,24 +110,25 @@ export default function Chatbox() {
           </button>
         </div>
       )}
-      <form
-        onSubmit={handleSend}
-        className="p-4 border-t flex items-center gap-2"
-      >
-        <input
-          className="flex-1 border border-neutral-400 rounded-xl px-4 py-2 text-sm focus:outline-blue-400 placeholder:text-neutral-400 text-black"
-          type="text"
+      <form onSubmit={handleSend} className="p-4 border-t flex items-center gap-2">
+        <textarea
+          className="flex-1 border border-border rounded-xl px-4 py-2 text-sm resize-none overflow-hidden focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+          rows={1}
           value={input}
           onChange={handleInputChange}
-          onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+          onKeyDown={handleKeyDown}
           placeholder="Type your message..."
         />
         <button
           type="submit"
-          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-xl text-sm disabled:opacity-50"
+          className="bg-blue-500 not-disabled:hover:bg-blue-600 text-white px-4 py-2 rounded-xl text-sm disabled:opacity-50"
           disabled={!input.trim() || status === 'streaming'}
         >
-          {status === 'streaming' ? '...' : 'Send'}
+          {status === 'streaming' ? (
+            <LoaderCircle size={22} className="animate-spin" />
+          ) : (
+            <SendHorizonal size={22} />
+          )}
         </button>
       </form>
     </div>
