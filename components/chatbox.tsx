@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { useChat } from '@ai-sdk/react';
 import ReactMarkdown from 'react-markdown';
 import { LoaderCircle, SendHorizonal } from 'lucide-react';
+import mobile  from 'is-mobile';
 
 export default function Chatbox() {
   const [isThinking, setIsThinking] = useState(false);
@@ -51,7 +52,7 @@ export default function Chatbox() {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === 'Enter' && !e.shiftKey && !mobile()) {
       e.preventDefault();
       handleSend();
     }
@@ -112,7 +113,7 @@ export default function Chatbox() {
       )}
       <form onSubmit={handleSend} className="p-4 border-t flex items-center gap-2">
         <textarea
-          className="flex-1 border border-border rounded-xl px-4 py-2 text-sm resize-none overflow-hidden focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+          className="flex-1 text-base border border-border rounded-xl px-4 py-2 resize-none overflow-hidden focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
           rows={1}
           value={input}
           onChange={handleInputChange}
@@ -125,9 +126,9 @@ export default function Chatbox() {
           disabled={!input.trim() || status === 'streaming'}
         >
           {status === 'streaming' ? (
-            <LoaderCircle size={22} className="animate-spin" />
+            <LoaderCircle size={26} className="animate-spin" />
           ) : (
-            <SendHorizonal size={22} />
+            <SendHorizonal size={26} />
           )}
         </button>
       </form>
